@@ -1,4 +1,9 @@
-import { createMDX } from "@next/mdx";
+import mdx from "@next/mdx";
+
+const withMDX = mdx({
+  extension: /\.mdx?$/,
+  options: {},
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -9,13 +14,5 @@ const nextConfig = {
     silenceDeprecations: ["legacy-js-api"],
   },
 };
-
-// MDX Plugin Setup
-const withMDX = createMDX({
-  extension: /\.mdx?$/,
-  options: {
-    // your remarkPlugins, rehypePlugins etc if needed
-  },
-});
 
 export default withMDX(nextConfig);
