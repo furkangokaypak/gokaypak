@@ -2,7 +2,7 @@ import { MDXRemote, MDXRemoteProps } from "next-mdx-remote/rsc";
 import React, { ReactNode } from "react";
 import dynamic from "next/dynamic";
 
-import { 
+import {
   Heading,
   HeadingLink,
   SmartImage,
@@ -43,7 +43,11 @@ function CustomLink({ href, children, ...props }: CustomLinkProps) {
   );
 }
 
-function createImage({ alt, src, ...props }: SmartImageProps & { src: string }) {
+function createImage({
+  alt,
+  src,
+  ...props
+}: SmartImageProps & { src: string }) {
   if (!src) {
     console.error("SmartImage requires a valid 'src' property.");
     return null;
@@ -65,21 +69,49 @@ function createImage({ alt, src, ...props }: SmartImageProps & { src: string }) 
   );
 }
 
-function slugify(str: string): string {
+function slugify(str: unknown): string {
+  if (typeof str !== "string") {
+    console.error("slugify expects a string but got:", str);
+    return "";
+  }
+
   return str
     .toLowerCase()
-    .replace(/\s+/g, "-") // Replace spaces with -
-    .replace(/&/g, "-and-") // Replace & with 'and'
-    .replace(/[^\w\-]+/g, "") // Remove all non-word characters except for -
-    .replace(/\-\-+/g, "-"); // Replace multiple - with single -
+    .replace(/\s+/g, "-")
+    .replace(/&/g, "-and-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+    .replace(/^-+/, "")
+    .replace(/-+$/, "");
+}
+
+function extractTextFromChildren(children: React.ReactNode): string {
+  if (typeof children === "string" || typeof children === "number") {
+    return String(children);
+  }
+
+  if (Array.isArray(children)) {
+    return children.map(extractTextFromChildren).join("");
+  }
+
+  if (React.isValidElement(children)) {
+    return extractTextFromChildren(children.props.children);
+  }
+
+  return "";
 }
 
 function createHeading(as: "h1" | "h2" | "h3" | "h4" | "h5" | "h6") {
   const CustomHeading = ({ children, ...props }: TextProps<typeof as>) => {
-    const slug = slugify(children as string);
+    const text = extractTextFromChildren(children);
+    const slug = slugify(text);
+
     return (
       <HeadingLink
-        style={{ marginTop: "var(--static-space-24)", marginBottom: "var(--static-space-12)" }}
+        style={{
+          marginTop: "var(--static-space-24)",
+          marginBottom: "var(--static-space-12)",
+        }}
         as={as}
         id={slug}
         {...props}
@@ -113,14 +145,15 @@ function createInlineCode({ children }: { children: ReactNode }) {
 }
 
 function createCodeBlock(props: any) {
-  // For pre tags that contain code blocks
-  if (props.children && props.children.props && props.children.props.className) {
+  if (
+    props.children &&
+    props.children.props &&
+    props.children.props.className
+  ) {
     const { className, children } = props.children.props;
-    
-    // Extract language from className (format: language-xxx)
-    const language = className.replace('language-', '');
+    const language = className.replace("language-", "");
     const label = language.charAt(0).toUpperCase() + language.slice(1);
-    
+
     return (
       <CodeBlock
         marginTop="8"
@@ -129,15 +162,14 @@ function createCodeBlock(props: any) {
           {
             code: children,
             language,
-            label
-          }
+            label,
+          },
         ]}
         copyButton={true}
       />
     );
   }
-  
-  // Fallback for other pre tags or empty code blocks
+
   return <pre {...props} />;
 }
 
@@ -157,18 +189,32 @@ const components = {
   Text,
   CodeBlock,
   InlineCode,
-  Accordion: dynamic(() => import("@/once-ui/components").then(mod => mod.Accordion)),
-  AccordionGroup: dynamic(() => import("@/once-ui/components").then(mod => mod.AccordionGroup)),
-  Table: dynamic(() => import("@/once-ui/components").then(mod => mod.Table)),
-  Feedback: dynamic(() => import("@/once-ui/components").then(mod => mod.Feedback)),
-  Button: dynamic(() => import("@/once-ui/components").then(mod => mod.Button)),
-  Card: dynamic(() => import("@/once-ui/components").then(mod => mod.Card)),
-  Grid: dynamic(() => import("@/once-ui/components").then(mod => mod.Grid)),
-  Row: dynamic(() => import("@/once-ui/components").then(mod => mod.Row)),
-  Column: dynamic(() => import("@/once-ui/components").then(mod => mod.Column)),
-  Icon: dynamic(() => import("@/once-ui/components").then(mod => mod.Icon)),
-  SmartImage: dynamic(() => import("@/once-ui/components").then(mod => mod.SmartImage)),
-  SmartLink: dynamic(() => import("@/once-ui/components").then(mod => mod.SmartLink)),
+  Accordion: dynamic(() =>
+    import("@/once-ui/components").then((mod) => mod.Accordion)
+  ),
+  AccordionGroup: dynamic(() =>
+    import("@/once-ui/components").then((mod) => mod.AccordionGroup)
+  ),
+  Table: dynamic(() => import("@/once-ui/components").then((mod) => mod.Table)),
+  Feedback: dynamic(() =>
+    import("@/once-ui/components").then((mod) => mod.Feedback)
+  ),
+  Button: dynamic(() =>
+    import("@/once-ui/components").then((mod) => mod.Button)
+  ),
+  Card: dynamic(() => import("@/once-ui/components").then((mod) => mod.Card)),
+  Grid: dynamic(() => import("@/once-ui/components").then((mod) => mod.Grid)),
+  Row: dynamic(() => import("@/once-ui/components").then((mod) => mod.Row)),
+  Column: dynamic(() =>
+    import("@/once-ui/components").then((mod) => mod.Column)
+  ),
+  Icon: dynamic(() => import("@/once-ui/components").then((mod) => mod.Icon)),
+  SmartImage: dynamic(() =>
+    import("@/once-ui/components").then((mod) => mod.SmartImage)
+  ),
+  SmartLink: dynamic(() =>
+    import("@/once-ui/components").then((mod) => mod.SmartLink)
+  ),
 };
 
 type CustomMDXProps = MDXRemoteProps & {
@@ -177,6 +223,9 @@ type CustomMDXProps = MDXRemoteProps & {
 
 export function CustomMDX(props: CustomMDXProps) {
   return (
-    <MDXRemote {...props} components={{ ...components, ...(props.components || {}) }} />
+    <MDXRemote
+      {...props}
+      components={{ ...components, ...(props.components || {}) }}
+    />
   );
 }
