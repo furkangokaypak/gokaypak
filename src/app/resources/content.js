@@ -67,7 +67,7 @@ const home = {
   },
   subline: (
     <>
-      I'm Gokay, a Full Stack Developer.
+      I'm Gökay, a Full Stack Developer.
       <br />I build my own projects using the latest and most advanced
       technologies.
     </>

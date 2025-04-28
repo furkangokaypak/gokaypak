@@ -41,7 +41,6 @@ export default function Home() {
         author={{
           name: person.name,
           url: `${baseURL}${about.path}`,
-          image: `${baseURL}${person.avatar}`,
         }}
       />
       <Column fillWidth paddingY="24" gap="m">
@@ -107,13 +106,7 @@ export default function Home() {
               arrowIcon
             >
               <Flex gap="8" vertical="center">
-                {about.avatar.display && (
-                  <Avatar
-                    style={{ marginLeft: "-0.75rem", marginRight: "0.25rem" }}
-                    src={person.avatar}
-                    size="m"
-                  />
-                )}
+                {about.avatar.display && <></>}
                 {about.title}
               </Flex>
             </Button>

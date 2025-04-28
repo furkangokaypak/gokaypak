@@ -27,7 +27,6 @@ export default function Gallery() {
         author={{
           name: person.name,
           url: `${baseURL}${gallery.path}`,
-          image: `${baseURL}${person.avatar}`,
         }}
       />
       <MasonryGrid />
